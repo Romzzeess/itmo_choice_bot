@@ -1,0 +1,8 @@
+data/
+qdrant_data/
+arango_data/
+arango_logs/
+.ipynb_checkpoints/
+services/triton/models/jina_clip_v2/1/model.onnx
+*__pycache__
+.env

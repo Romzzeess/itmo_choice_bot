@@ -1,0 +1,4 @@
+openai==1.82.0
+python-arango==8.1.7
+tritonclient[all]==2.59.0
+qdrant-client==1.14.3

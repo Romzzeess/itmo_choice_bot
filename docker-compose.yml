@@ -1,0 +1,60 @@
+services:
+  arangodb:
+    image: arangodb:latest
+    container_name: arangodb
+    restart: unless-stopped
+    ports:
+      - "8529:8529"
+      - "8530:8530"
+    environment:
+      ARANGO_ROOT_PASSWORD: ""
+    ipc: host
+    volumes:
+      - ./arango_data:/var/lib/arangodb3
+      - ./arango_logs:/var/log/arangodb3
+
+  qdrant:
+    image: qdrant/qdrant:v1.5.0
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:25.04-py3
+    container_name: triton
+    restart: always
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    gpus: all
+    ipc: host
+    shm_size: 10gb
+    volumes:
+      - ./services/triton/models:/models
+    ports:
+      - "8001:8000"
+      - "8002:8001"  
+      - "8003:8002"   
+    command: [
+      "tritonserver",
+      "--model-repository=/models",
+      "--strict-model-config=true"
+    ]
+
+  sglang:
+    image: lmsysorg/sglang:latest
+    container_name: qwen3_4b_sglang
+    ports:
+      - "8000:30000"
+    environment:
+      HF_HOME: /root/.cache/huggingface
+    gpus: all
+    ipc: host
+    shm_size: 10gb
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - ./services/sglang/qwen3_4b_entrypoint.sh:/tmp/entrypoint.sh
+    entrypoint:
+      - /tmp/entrypoint.sh
